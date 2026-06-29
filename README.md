@@ -14,4 +14,4 @@ contains a standalone project with its own README, code, and documentation.
 
 ---
 
-> (c) Brock Frary | 2026-06-28
+> © 2026 Brock Frary. All rights reserved.
