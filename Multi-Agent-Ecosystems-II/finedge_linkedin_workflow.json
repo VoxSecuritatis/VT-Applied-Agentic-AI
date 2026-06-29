@@ -1,0 +1,371 @@
+{
+  "name": "FinEdge LinkedIn Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "9af7764e-4c5f-4260-b05a-29f1f2253dac",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "caf7bce9-6682-460e-b4d7-42c4c44afe92",
+              "name": "company",
+              "value": "FinEdge Mumbai",
+              "type": "string"
+            },
+            {
+              "id": "8a6bdf76-a373-4706-aec3-d0e67bc6dd00",
+              "name": "industry",
+              "value": "fintech",
+              "type": "string"
+            },
+            {
+              "id": "351776db-728b-4b4b-9a62-a50cda0b2df4",
+              "name": "tone",
+              "value": "authoritative, professional",
+              "type": "string"
+            },
+            {
+              "id": "bc071610-fef9-4848-b7b8-d2a8a3135c3f",
+              "name": "audience",
+              "value": "finance professionals, fintech community",
+              "type": "string"
+            },
+            {
+              "id": "829e98a6-ee51-4d2a-8136-6123458d0bfe",
+              "name": "topic",
+              "value": "AI in personal finance",
+              "type": "string"
+            },
+            {
+              "id": "197f07bf-990b-489b-863e-56742de4f261",
+              "name": "dry_run",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "c56ca5c1-c74b-4f17-9fc6-cc2a7fe4ad16",
+      "name": "Brand Config"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://YOUR_WSL2_HOST_IP:8000/linkedin",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"brand\": {\n    \"company\": \"{{ $('Brand Config').item.json.company }}\",\n    \"industry\": \"{{ $('Brand Config').item.json.industry }}\",\n    \"tone\": \"{{ $('Brand Config').item.json.tone }}\",\n    \"audience\": \"{{ $('Brand Config').item.json.audience }}\"\n  },\n  \"context\": {\n    \"topic\": \"{{ $('Brand Config').item.json.topic }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "f41ec7f3-d568-44ed-86a6-e75b0bb432ea",
+      "name": "AutoGen Microservice"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a40f0fdc-cd80-45c1-a57f-a4471461bb67",
+              "name": "final_post",
+              "value": "={{ $json.draft + '\\n\\n' + $json.hashtags.join(' ') }}",
+              "type": "string"
+            },
+            {
+              "id": "9e7e372f-3e0f-41c8-8138-47813b65bd92",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "4515a889-6531-4003-8ce0-db12f69fe209",
+              "name": "dry_run",
+              "value": "={{ $('Brand Config').item.json.dry_run }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        0
+      ],
+      "id": "962e8724-d0a3-41ed-acb6-5b367047c5da",
+      "name": "Compose Final"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bfde5a3a-ce91-44f2-9958-03352ae60854",
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.75,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "ebe3ba70-79e8-446f-a4fb-c194271e45f1",
+              "leftValue": "={{ $json.dry_run }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        336,
+        0
+      ],
+      "id": "5a682327-edc6-4f1b-bbb1-a516b0404a2f",
+      "name": "Approval Gate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3b196736-fe9c-4448-ac6c-d7c52abe5934",
+              "name": "action",
+              "value": "PUBLISH_TO_LINKEDIN",
+              "type": "string"
+            },
+            {
+              "id": "a6c3cd90-5af2-442d-9498-070685f364a3",
+              "name": "post_content",
+              "value": "={{ $json.final_post }}",
+              "type": "string"
+            },
+            {
+              "id": "2189120c-a7b7-495f-b861-c6dfc3330bd5",
+              "name": "status",
+              "value": "dry_run_only -- connect LinkedIn OAuth to activate",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        -96
+      ],
+      "id": "01feb6db-6d68-425a-aab4-ff4345522a91",
+      "name": "LinkedIn (Mock -- Live Post)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_TOKEN",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=[DRY RUN] Confidence: {{ $json.confidence }}\n\n{{ $json.final_post }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        96
+      ],
+      "id": "66a28b37-ef43-44de-b003-207fdda893eb",
+      "name": "Slack"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://YOUR_WSL2_HOST_IP:8000/log",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "final_post",
+              "value": "={{ $('Compose Final').item.json.final_post }}"
+            },
+            {
+              "name": "confidence",
+              "value": "={{ $('Compose Final').item.json.confidence }}"
+            },
+            {
+              "name": "dry_run",
+              "value": "={{ $('Compose Final').item.json.dry_run }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        0
+      ],
+      "id": "cf1c4e19-27d9-419d-982d-462d00a1622d",
+      "name": "Logging"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Brand Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brand Config": {
+      "main": [
+        [
+          {
+            "node": "AutoGen Microservice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AutoGen Microservice": {
+      "main": [
+        [
+          {
+            "node": "Compose Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Final": {
+      "main": [
+        [
+          {
+            "node": "Approval Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval Gate": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn (Mock -- Live Post)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        [
+          {
+            "node": "Logging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn (Mock -- Live Post)": {
+      "main": [
+        [
+          {
+            "node": "Logging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9bb5eaf9-9cfa-4ead-8485-76d7ccde46d7",
+  "meta": {
+    "instanceId": "0963f1a8fd32e1100c843a4522332eef78d074d2ee20e54146a5c47324258b89"
+  },
+  "nodeGroups": [],
+  "id": "ubq1NAi39MHRmuya",
+  "tags": []
+}

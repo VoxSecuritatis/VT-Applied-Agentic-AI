@@ -1,0 +1,20 @@
+# ================================================================
+# .gitignore -- VT-Applied-Agentic-AI (course repo root)
+# Secrets and runtime artifacts excluded across all modules.
+# ================================================================
+
+# Secrets
+.env
+*.local.json
+
+# Python runtime
+.venv/
+__pycache__/
+*.pyc
+
+# Claude Code working files
+.claude/
+CLAUDE.md
+
+# Runtime artifacts
+linkedin_log.csv

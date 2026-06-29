@@ -1,0 +1,39 @@
+# ================================================================
+# .gitignore -- FinEdge LinkedIn Automation (public repo)
+# Security-first: secrets, runtime artifacts, and internal tools
+# are excluded. Source code and documentation only.
+# ================================================================
+
+# Secrets and environment
+.env
+*.local.json
+
+# Python runtime
+.venv/
+__pycache__/
+*.pyc
+
+# Claude Code working files (internal)
+.claude/
+CLAUDE.md
+
+# Generation scripts (development utilities, not public deliverables)
+decompose_reflection.py
+generate_diagrams.py
+generate_reflection.py
+
+# Documents -- PDF is the portfolio deliverable; .docx files are intermediate
+reflection.docx
+reflection-FINAL.docx
+reflection.pdf
+reflection_extracted.md
+decomposed_images/
+
+# Course context material (not authored here)
+context/
+
+# Internal planning artifacts
+sequence_of_steps_by_phase.md
+
+# Runtime artifacts
+linkedin_log.csv
