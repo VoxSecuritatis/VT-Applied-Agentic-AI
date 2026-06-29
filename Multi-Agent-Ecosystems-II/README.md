@@ -17,6 +17,11 @@ human intervention.
 
 ---
 
+## Primary Project Artifact (Explainer and Screenshots):
+### **[Reflection:  AI-Powered LinkedIn Content Automation](https://github.com/VoxSecuritatis/VT-Applied-Agentic-AI/blob/main/Multi-Agent-Ecosystems-II/reflection-final.pdf)**
+
+---
+
 ## About This Project
 
 This is the module project for **VT_AGI: Multi-Agent Ecosystems (II)**, part of the
