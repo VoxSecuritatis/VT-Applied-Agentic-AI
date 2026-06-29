@@ -70,3 +70,5 @@ if (-not (Test-Path $MAIN)) {
 }
 Write-Host "[INFO] Starting FastAPI microservice on http://0.0.0.0:8000 ..."
 & $PYTHON -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# © 2026 Brock Frary. All rights reserved.
