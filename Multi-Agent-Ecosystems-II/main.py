@@ -254,3 +254,5 @@ async def log_run(entry: LogEntry) -> JSONResponse:
     except Exception as exc:
         print(f"[ERROR] Log write failed: {exc}")
         return JSONResponse(status_code=500, content={"error": str(exc)})
+
+# © 2026 Brock Frary. All rights reserved.
