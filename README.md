@@ -14,4 +14,4 @@ contains a standalone project with its own README, code, and documentation.
 
 ---
 
-> Created by Brock Frary guiding Claude Code | 2026-06-28
+> (c) Brock Frary | 2026-06-28
