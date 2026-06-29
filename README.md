@@ -1,4 +1,4 @@
-# Virgina Tech - Applied Agentic AI: Systems, Design & Impact
+# Virginia Tech - Applied Agentic AI: Systems, Design & Impact
 ##### Simplilearn / Microsoft | Brock Frary | 2026
 
 Course project portfolio for VT_AGI applied agentic AI coursework. Each module directory
