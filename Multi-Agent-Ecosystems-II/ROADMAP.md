@@ -148,4 +148,4 @@
 
 ---
 
-> Created by Brock Frary guiding Claude Code | 2026-06-28
+> © 2026 Brock Frary. All rights reserved.
