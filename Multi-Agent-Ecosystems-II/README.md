@@ -12,9 +12,6 @@ human intervention.
 ![OpenAI](https://img.shields.io/badge/OpenAI-gpt--4.1--mini-412991?logo=openai&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%2B%20Ubuntu%20WSL2-0078D6?logo=windows&logoColor=white)
 
-> Full portfolio document with architecture diagrams, design decisions, and annotated
-> build screenshots: **`reflection-final.pdf`** (in this repository).
-
 ---
 
 ## Primary Project Artifact (Explainer and Screenshots):
