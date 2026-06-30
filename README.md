@@ -8,9 +8,9 @@ contains a standalone project with its own README, code, and documentation.
 
 ## Modules
 
-| Module | Project | Description |
-|---|---|---|
-| **Multi-Agent Ecosystems (II)** | [AI-Powered LinkedIn Content Automation](Multi-Agent-Ecosystems-II/) | FastAPI microservice + n8n workflow implementing a three-agent content pipeline (LinkedIn and Slack) for FinEdge Mumbai |
+| # |Module | Project | Description |
+|---|---|---|---|
+| 06 | **Multi-Agent Ecosystems (II)** | [AI-Powered LinkedIn Content Automation](Multi-Agent-Ecosystems-II/) | FastAPI microservice + n8n workflow implementing a three-agent content pipeline (LinkedIn and Slack) for FinEdge Mumbai |
 
 ---
 
