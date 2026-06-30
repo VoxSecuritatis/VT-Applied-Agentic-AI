@@ -1,10 +1,8 @@
 # AI-Powered LinkedIn Content Automation
-##### VT_AGI: Multi-Agent Ecosystems (II) Module Project | Brock Frary | 2026-06-28
 
-Automated LinkedIn post pipeline for FinEdge Mumbai. A FastAPI microservice chains three
-sequential OpenAI agents -- Idea, Draft, and Hashtag -- within a single HTTP call. An n8n
-workflow handles scheduling, approval gating, Slack review, and CSV logging without
-human intervention.
+##### VT_AGI: Multi-Agent Ecosystems (II) Module Project | Brock Frary | Published: 2026-06-28 | Updated: 2026-06-30
+
+Automated LinkedIn post pipeline for FinEdge Mumbai. A FastAPI microservice chains three sequential OpenAI agents -- Idea, Draft, and Hashtag -- within a single HTTP call. An n8n workflow handles scheduling, approval gating, Slack review, and CSV logging without human intervention.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.138-009688?logo=fastapi&logoColor=white)
@@ -14,31 +12,27 @@ human intervention.
 
 ---
 
-## Primary Project Artifact (Explainer and Screenshots):
-### **[Reflection:  AI-Powered LinkedIn Content Automation](https://github.com/VoxSecuritatis/VT-Applied-Agentic-AI/blob/main/Multi-Agent-Ecosystems-II/reflection-final.pdf)**
+## Primary Project Artifact
+
+### [Reflection: AI-Powered LinkedIn Content Automation](./reflection-final.pdf)
 
 ---
 
 ## About This Project
 
-This is the module project for **VT_AGI: Multi-Agent Ecosystems (II)**, part of the
-*Applied Agentic AI: Systems, Design & Impact* course at Virginia Tech.
+This is the module project for **VT_AGI: Multi-Agent Ecosystems (II)**, part of the *Applied Agentic AI: Systems, Design & Impact* course at Virginia Tech.
 
-The project implements an AutoGen-inspired multi-agent content pipeline -- but without
-the AutoGen SDK. Three discrete OpenAI calls are chained sequentially inside a FastAPI
-microservice, making the agent hand-offs explicit and easy to inspect. An n8n workflow
-running in Ubuntu WSL2 orchestrates the pipeline on a weekday schedule, routes content
-through a confidence-based approval gate, and logs every run for threshold tuning.
+The project implements an AutoGen-inspired multi-agent content pipeline, but without the AutoGen SDK. Three discrete OpenAI calls are chained sequentially inside a FastAPI microservice, making the agent hand-offs explicit and easy to inspect.
 
-The primary technical challenges were around the Windows/WSL2 cross-boundary networking
-and n8n expression scoping downstream of branch nodes -- both documented in detail in
-`reflection-final.pdf` and in the Key Learnings section below.
+An n8n workflow running in Ubuntu WSL2 orchestrates the pipeline on a weekday schedule, routes content through a confidence-based approval gate, and logs every run for threshold tuning.
+
+The primary technical challenges were around Windows/WSL2 cross-boundary networking and n8n expression scoping downstream of branch nodes. Both are documented in detail in `reflection-final.pdf` and in the Key Learnings section below.
 
 ---
 
 ## Architecture
 
-```
+```text
 [n8n: Schedule Trigger]  -- Weekdays, 9:00 AM UTC
         |
         v
@@ -69,26 +63,25 @@ and n8n expression scoping downstream of branch nodes -- both documented in deta
         [n8n: Logging node]  -- POST /log -> linkedin_log.csv
 ```
 
-n8n runs in Ubuntu WSL2; the FastAPI microservice runs on Windows (port 8000).
-The HTTP Request nodes use the WSL2 Windows host IP rather than localhost to cross
-the boundary between the two environments.
+n8n runs in Ubuntu WSL2. The FastAPI microservice runs on Windows at port `8000`.
+
+The HTTP Request nodes use the WSL2 Windows host IP rather than `localhost` to cross the boundary between the two environments.
 
 ---
 
 ## How the Agent Chain Works
 
-All three agents run sequentially within a single `POST /linkedin` request.
-The output of each agent feeds directly into the next:
+All three agents run sequentially within a single `POST /linkedin` request. The output of each agent feeds directly into the next.
 
 | Agent | Input | Output |
 |---|---|---|
-| **Idea Agent** | Brand config + topic | 3 distinct post concepts (JSON array) |
-| **Draft Agent** | 3 ideas + brand config | Full post draft (150-300 words) + confidence score |
-| **Hashtag Agent** | Draft text + industry | 5-8 relevant hashtags (JSON array) |
+| **Idea Agent** | Brand config + topic | 3 distinct post concepts, returned as a JSON array |
+| **Draft Agent** | 3 ideas + brand config | Full post draft, 150-300 words, plus confidence score |
+| **Hashtag Agent** | Draft text + industry | 5-8 relevant hashtags, returned as a JSON array |
 
-The confidence score (0.0-1.0) is assigned by the Draft Agent based on topical
-relevance, brand alignment, and post structure quality. In testing, `gpt-4.1-mini`
-returned scores consistently above 0.90 for FinEdge Mumbai prompts.
+The confidence score, from `0.0` to `1.0`, is assigned by the Draft Agent based on topical relevance, brand alignment, and post structure quality.
+
+In testing, `gpt-4.1-mini` returned scores consistently above `0.90` for FinEdge Mumbai prompts.
 
 ---
 
@@ -97,33 +90,40 @@ returned scores consistently above 0.90 for FinEdge Mumbai prompts.
 | Decision | Choice | Rationale |
 |---|---|---|
 | FastAPI vs. AutoGen SDK | FastAPI | No SDK lock-in; the sequential chain pattern is explicit, portable, and easy to debug |
-| Standard OpenAI vs. Azure OpenAI | Standard OpenAI API | Azure credentials are sandbox-specific and inaccessible outside the lab VM; same agent logic, different env vars |
+| Standard OpenAI vs. Azure OpenAI | Standard OpenAI API | Azure credentials are sandbox-specific and inaccessible outside the lab VM; same agent logic, different environment variables |
 | n8n in WSL2 vs. native Windows | WSL2 | n8n's Node.js dependency runs cleanly in Linux; avoids Windows PATH conflicts with nvm-managed Node |
 | CSV logging via FastAPI `/log` | Dedicated endpoint | n8n Code node sandboxes `require('fs')`; Write to File needs binary input; a FastAPI endpoint gives the microservice clean ownership of all file I/O |
-| Confidence threshold: 0.75 | Tunable in Approval Gate node | Conservative starting point; model consistently returns 0.90+, so the gate provides a safety margin without blocking quality content |
+| Confidence threshold | `0.75` | Conservative starting point; model consistently returns `0.90+`, so the gate provides a safety margin without blocking quality content |
 
 ---
 
 ## Key Learnings
 
-**WSL2 / Windows interop:** Launching n8n from PowerShell via `wsl bash -c ...` causes
-Windows PATH entries to shadow the nvm-managed Node.js binary, breaking n8n's startup.
-The resolution is an interactive WSL terminal -- it sources `.bashrc`, setting the nvm
-PATH before any Windows entries are appended. Non-interactive shells do not source
-`.bashrc`.
+### WSL2 / Windows interop
 
-**n8n expression scoping after branch nodes:** When a node sits downstream of an IF,
-Slack, or HTTP Request node, `$json` resolves to that branch node's output -- not the
-original pipeline data. This caused 422 errors in the Logging node because
-`$json.final_post` resolved to the Slack response object. Named-node expressions
-(`$('Compose Final').item.json.final_post`) reach the correct upstream data regardless
-of which branch path arrived at the node. This pattern applies to any n8n workflow with
-converging branches.
+Launching n8n from PowerShell via `wsl bash -c ...` causes Windows PATH entries to shadow the nvm-managed Node.js binary, breaking n8n's startup.
 
-**Slack body formatting:** Using JSON mode in the n8n HTTP Request body caused a
-"bad control character" parse error when the post draft contained newline sequences.
-Switching to "Using Fields Below" mode resolved this -- n8n handles character escaping
-internally when values are entered as individual named fields.
+The resolution is to start n8n from an interactive WSL terminal. The interactive terminal sources `.bashrc`, setting the nvm PATH before any Windows entries are appended. Non-interactive shells do not source `.bashrc`.
+
+### n8n expression scoping after branch nodes
+
+When a node sits downstream of an IF, Slack, or HTTP Request node, `$json` resolves to that branch node's output, not the original pipeline data.
+
+This caused `422` errors in the Logging node because `$json.final_post` resolved to the Slack response object.
+
+Named-node expressions fix the issue:
+
+```text
+$('Compose Final').item.json.final_post
+```
+
+This reaches the correct upstream data regardless of which branch path arrived at the node. The same pattern applies to any n8n workflow with converging branches.
+
+### Slack body formatting
+
+Using JSON mode in the n8n HTTP Request body caused a "bad control character" parse error when the post draft contained newline sequences.
+
+Switching to "Using Fields Below" mode resolved this because n8n handles character escaping internally when values are entered as individual named fields.
 
 ---
 
@@ -131,25 +131,26 @@ internally when values are entered as individual named fields.
 
 | Layer | Technology | Version / Notes |
 |---|---|---|
-| Orchestration | n8n (self-hosted, Ubuntu WSL2) | 8-node workflow; no JavaScript |
-| Microservice | FastAPI + Uvicorn | 0.138 / 0.49.0; Python 3.12 |
+| Orchestration | n8n, self-hosted in Ubuntu WSL2 | 8-node workflow; no JavaScript |
+| Microservice | FastAPI + Uvicorn | FastAPI `0.138`; Uvicorn `0.49.0`; Python `3.12` |
 | LLM | OpenAI `gpt-4.1-mini` | 3 sequential calls per run |
-| Agent pattern | Sequential chain (AutoGen-inspired) | No AutoGen SDK dependency |
+| Agent pattern | Sequential chain, AutoGen-inspired | No AutoGen SDK dependency |
 | Logging | CSV via FastAPI `/log` endpoint | Written to Windows project root |
 | Routing: review | Slack Incoming Webhook | Dry-run and low-confidence posts |
-| Routing: publish | LinkedIn (OAuth) | Mock node during testing |
-| Launcher | PowerShell (`run.ps1`) | Bootstraps `.venv`, installs deps, starts Uvicorn |
+| Routing: publish | LinkedIn OAuth | Mock node during testing |
+| Launcher | PowerShell `run.ps1` | Bootstraps `.venv`, installs dependencies, starts Uvicorn |
 
 ---
 
 ## Prerequisites
 
-| Requirement | Version |
+| Requirement | Version / Notes |
 |---|---|
-| Python | 3.12+ (Windows) |
-| Node.js | 18+ (Ubuntu WSL2, via nvm) |
-| n8n | Latest self-hosted |
-| OpenAI API key | Standard API; `gpt-4.1-mini` recommended |
+| Python | `3.12+` on Windows |
+| Node.js | `18+` in Ubuntu WSL2, via nvm |
+| n8n | Latest self-hosted version |
+| OpenAI API key | Standard OpenAI API key |
+| OpenAI model | `gpt-4.1-mini` recommended |
 
 ---
 
@@ -165,41 +166,87 @@ npm install -g n8n
 n8n start
 ```
 
-Dashboard at `http://localhost:5678`. Always start n8n from an **interactive** WSL
-terminal -- not from PowerShell -- to ensure `.bashrc` sets the nvm PATH correctly.
+The n8n dashboard will be available at:
 
-### 2. Clone and configure
-
-```powershell
-git clone https://github.com/YOUR_USERNAME/REPO_NAME.git
-cd REPO_NAME
-cp .env.example .env
+```text
+http://localhost:5678
 ```
 
-Edit `.env` with your `OPENAI_API_KEY`. The model is pre-set to `gpt-4.1-mini`.
+Always start n8n from an **interactive WSL terminal**, not from PowerShell, to ensure `.bashrc` sets the nvm PATH correctly.
 
-### 3. Start the microservice
+---
+
+### 2. Clone and configure the project
+
+```powershell
+git clone https://github.com/VoxSecuritatis/VT-Applied-Agentic-AI.git
+cd VT-Applied-Agentic-AI\Multi-Agent-Ecosystems-II
+copy .env.example .env
+```
+
+Edit `.env` and add your `OPENAI_API_KEY`.
+
+The model is pre-set to:
+
+```text
+gpt-4.1-mini
+```
+
+---
+
+### 3. Start the FastAPI microservice
 
 ```powershell
 .\run.ps1
 ```
 
-`run.ps1` creates `.venv` (Python 3.12) if missing, installs `requirements.txt`, and
-starts Uvicorn at `http://0.0.0.0:8000`. The FastAPI docs are at
-`http://localhost:8000/docs`.
+`run.ps1` creates `.venv` with Python 3.12 if missing, installs `requirements.txt`, and starts Uvicorn at:
+
+```text
+http://0.0.0.0:8000
+```
+
+The FastAPI docs are available at:
+
+```text
+http://localhost:8000/docs
+```
+
+---
 
 ### 4. Import the n8n workflow
 
-1. Open `http://localhost:5678`
-2. **Workflows** -> **Import from File** -> select `finedge_linkedin_workflow.json`
-3. Find your WSL2 Windows host IP:
-   ```bash
-   ip route show default | awk '/default/ {print $3}'
-   ```
-4. In the workflow, update the two HTTP Request nodes: replace `YOUR_WSL2_HOST_IP`
-   with that IP (e.g., `172.x.x.1`)
-5. In the Slack node, replace `YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_TOKEN` with your
-   Incoming Webhook URL from your Slack app settings
+Open n8n:
+
+```text
+http://localhost:5678
+```
+
+Then import the workflow:
+
+```text
+Workflows -> Import from File -> finedge_linkedin_workflow.json
+```
+
+Find your WSL2 Windows host IP:
+
+```bash
+ip route show default | awk '/default/ {print $3}'
+```
+
+In the workflow, update the two HTTP Request nodes by replacing:
+
+```text
+YOUR_WSL2_HOST_IP
+```
+
+with the IP returned by the command, for example:
+
+```text
+172.x.x.1
+```
+
+In the Slack node, replace the placeholder webhook path with your Slack Incoming Webhook URL from your Slack app settings.
 
 ---
 
@@ -208,9 +255,11 @@ starts Uvicorn at `http://0.0.0.0:8000`. The FastAPI docs are at
 | Variable | Description |
 |---|---|
 | `OPENAI_API_KEY` | OpenAI API key |
-| `OPENAI_MODEL` | Model name (default: `gpt-4.1-mini`) |
+| `OPENAI_MODEL` | Model name; default is `gpt-4.1-mini` |
 
-Never commit `.env`. It is listed in `.gitignore`. Only `.env.example` is committed.
+Never commit `.env`. It is listed in `.gitignore`.
+
+Only `.env.example` is committed.
 
 ---
 
@@ -220,7 +269,7 @@ Never commit `.env`. It is listed in `.gitignore`. Only `.env.example` is commit
 
 Runs the three-agent chain and returns structured content.
 
-**Request body:**
+#### Request body
 
 ```json
 {
@@ -237,37 +286,55 @@ Runs the three-agent chain and returns structured content.
 }
 ```
 
-**Response body:**
+#### Response body
 
 ```json
 {
   "ideas": ["...", "...", "..."],
-  "draft": "Full LinkedIn post text (150-300 words)...",
+  "draft": "Full LinkedIn post text, 150-300 words...",
   "confidence": 0.87,
   "hashtags": ["#fintech", "#FinancialInnovation", "#MumbaiFintech"]
 }
 ```
 
+#### Error codes
+
 | Code | Condition |
 |---|---|
-| 422 | Malformed or missing required fields |
-| 500 | OpenAI call failed or returned unparseable JSON |
+| `422` | Malformed or missing required fields |
+| `500` | OpenAI call failed or returned unparseable JSON |
 
 ---
 
 ### `POST /log`
 
-Called by the n8n Logging node after each run. Appends one row to `linkedin_log.csv`.
+Called by the n8n Logging node after each run.
 
-**Request body:**
+This endpoint appends one row to:
 
-```json
-{ "final_post": "string", "confidence": 0.87, "dry_run": false }
+```text
+linkedin_log.csv
 ```
 
-**Response:** `{ "status": "logged" }`
+#### Request body
 
-Creates `linkedin_log.csv` with headers if it does not exist.
+```json
+{
+  "final_post": "string",
+  "confidence": 0.87,
+  "dry_run": false
+}
+```
+
+#### Response body
+
+```json
+{
+  "status": "logged"
+}
+```
+
+The endpoint creates `linkedin_log.csv` with headers if the file does not already exist.
 
 ---
 
@@ -278,42 +345,65 @@ Creates `linkedin_log.csv` with headers if it does not exist.
 | # | Node | Type | Purpose |
 |---|---|---|---|
 | 1 | Schedule Trigger | Schedule | Fires weekdays at 9:00 AM UTC |
-| 2 | Brand Config | Set | FinEdge Mumbai brand parameters + `dry_run` flag |
+| 2 | Brand Config | Set | FinEdge Mumbai brand parameters plus `dry_run` flag |
 | 3 | AutoGen Microservice | HTTP Request | Calls `POST /linkedin` on the FastAPI microservice |
-| 4 | Compose Final | Set | Assembles `draft + hashtags`; propagates `confidence` and `dry_run` |
+| 4 | Compose Final | Set | Assembles draft plus hashtags; propagates `confidence` and `dry_run` |
 | 5 | Approval Gate | IF | Routes on `confidence >= 0.75 AND dry_run == false` |
-| 6 | LinkedIn (Mock) | Set | Live publish path; connect LinkedIn OAuth to activate |
+| 6 | LinkedIn Mock | Set | Live publish path; connect LinkedIn OAuth to activate |
 | 7 | Slack | HTTP Request | Sends draft via Incoming Webhook for human review |
-| 8 | Logging | HTTP Request | POSTs to `POST /log`; appends row to `linkedin_log.csv` |
+| 8 | Logging | HTTP Request | Posts to `POST /log`; appends row to `linkedin_log.csv` |
 
-### Dry-run vs. live mode
+---
 
-Set `dry_run` in the **Brand Config** node (Node 2):
+## Dry-run vs. Live Mode
 
-- `dry_run: true` (default) -- all posts route to Slack regardless of confidence
-- `dry_run: false` -- the Approval Gate is active; high-confidence posts go to LinkedIn
+Set `dry_run` in the **Brand Config** node.
 
-### Confidence threshold
+| Mode | Behavior |
+|---|---|
+| `dry_run: true` | Default. All posts route to Slack regardless of confidence. |
+| `dry_run: false` | Approval Gate is active. High-confidence posts go to LinkedIn. |
 
-Default: `0.75`. Adjust in the **Approval Gate** node (Node 5). The `confidence`
-column in `linkedin_log.csv` is the primary signal for threshold tuning.
+---
 
-### Expression note
+## Confidence Threshold
 
-The Logging node (Node 8) sits downstream of both branch nodes. `$json.*` at that
-position resolves to the branch output, not the pipeline data. All Logging node
-fields use named-node expressions: `$('Compose Final').item.json.final_post`.
+Default threshold:
+
+```text
+0.75
+```
+
+Adjust this value in the **Approval Gate** node.
+
+The `confidence` column in `linkedin_log.csv` is the primary signal for threshold tuning.
+
+---
+
+## Expression Note
+
+The Logging node sits downstream of both branch nodes. At that position, `$json.*` resolves to the branch output, not the pipeline data.
+
+For that reason, the Logging node uses named-node expressions:
+
+```text
+$('Compose Final').item.json.final_post
+```
+
+This ensures the Logging node reads the correct upstream data regardless of whether the workflow routed through Slack or LinkedIn.
 
 ---
 
 ## Log File
 
-`linkedin_log.csv` is created in the project root on the first workflow run (gitignored):
+`linkedin_log.csv` is created in the project root on the first workflow run.
+
+The file is gitignored.
 
 | Field | Description |
 |---|---|
 | `timestamp` | ISO 8601 run time |
-| `draft` | Post text (truncated to 500 chars) |
+| `draft` | Post text, truncated to 500 characters |
 | `confidence` | Score returned by Draft Agent |
 | `routed_to` | `slack` or `linkedin` |
 | `dry_run` | `true` or `false` |
@@ -322,34 +412,38 @@ fields use named-node expressions: `$('Compose Final').item.json.final_post`.
 
 ## Project Structure
 
-```
+```text
 .
-├── main.py                        # FastAPI microservice (POST /linkedin, POST /log)
+├── main.py                        # FastAPI microservice: POST /linkedin and POST /log
 ├── run.ps1                        # Bootstraps .venv and launches microservice
-├── requirements.txt               # Pinned direct dependencies (FastAPI, Uvicorn, OpenAI)
-├── .env.example                   # Variable names template -- no secrets
-├── finedge_linkedin_workflow.json # Importable n8n workflow (host IP + webhook are placeholders)
-├── README.md                      # This file
+├── requirements.txt               # Pinned direct dependencies: FastAPI, Uvicorn, OpenAI
+├── .env.example                   # Variable names template; no secrets
+├── finedge_linkedin_workflow.json # Importable n8n workflow
+├── README.md                      # Project README
 ├── PRD.md                         # Product requirements document
 ├── ROADMAP.md                     # Build plan and stage completion log
-└── reflection-final.pdf           # Portfolio document: architecture diagrams, design
-                                   # decisions, challenges, build walkthrough (20 screenshots)
+└── reflection-final.pdf           # Portfolio document with diagrams, design decisions,
+                                   # challenges, build walkthrough, and screenshots
 ```
 
 ---
 
 ## Portfolio Document
 
-`reflection-final.pdf` is the full project narrative. It includes:
+`reflection-final.pdf` is the full project narrative.
 
-- End-to-end workflow flowchart and three-lane swimlane architecture diagram
+It includes:
+
+- End-to-end workflow flowchart
+- Three-lane swimlane architecture diagram
 - Design decisions and rationale
 - Challenges encountered and how they were resolved
 - Trade-offs table
-- Personal reflections on the course, WSL2 stack, n8n, and the document tooling built
-  alongside this project
+- Personal reflections on the course, WSL2 stack, n8n, and the document tooling built alongside this project
 - Build walkthrough with 20 annotated screenshots covering every ROADMAP stage
 
 ---
 
-> © 2026 Brock Frary. All rights reserved.
+## Copyright
+
+© 2026 Brock Frary. All rights reserved.
