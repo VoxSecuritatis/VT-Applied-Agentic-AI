@@ -10,7 +10,7 @@ contains a standalone project with its own README, code, and documentation.
 
 | # | Module | Project | Description |
 |---|---|---|---|
-| 01 | Python Refresher with AI | [Analyzing Customer Orders Using Python](https://github.com/VoxSecuritatis/VT-01-Python-Refresher-with-AI) | E-commerce order analysis using Python lists, tuples, dictionaries, sets, loops, and conditionals. |
+| 01 | Python Refresher with AI | [Analyzing Customer Orders Using Python](https://github.com/VoxSecuritatis/VT-01-Python-Refresher-with-AI) | E-commerce order analysis using Python lists, tuples, dictionaries, sets, loops, and conditionals, built with GitHub Copilot. |
 | | | | |
 | 01 | Python Refresher with AI | [Building a Python Adventure Game with GitHub Copilot](https://github.com/VoxSecuritatis/VT-01-Python-Refresher-with-AI-Project-2) | Text-based command-line adventure game using Python functions, conditionals, and loops, built with GitHub Copilot. |
 | 02 | Foundations of AI & Agentic AI | No project assigned | No project assigned. |
