@@ -10,7 +10,7 @@ contains a standalone project with its own README, code, and documentation.
 
 | Module | Project | Description |
 |---|---|---|
-| **Multi-Agent Ecosystems (II)** | [AI-Powered LinkedIn Content Automation](Multi-Agent-Ecosystems-II/) | FastAPI microservice + n8n workflow implementing a three-agent content pipeline for FinEdge Mumbai |
+| **Multi-Agent Ecosystems (II)** | [AI-Powered LinkedIn Content Automation](Multi-Agent-Ecosystems-II/) | FastAPI microservice + n8n workflow implementing a three-agent content pipeline (LinkedIn and Slack) for FinEdge Mumbai |
 
 ---
 
