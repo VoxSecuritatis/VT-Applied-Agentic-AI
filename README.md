@@ -16,7 +16,7 @@ contains a standalone project with its own README, code, and documentation.
 | 02 | Foundations of AI & Agentic AI | No project assigned | No project assigned. |
 | 03 | Generative AI Tech Stack and Prompt Engineering | No project assigned | No project assigned. |
 | 04 | LLM Internals & Planning Systems | Not started yet | Not started yet. |
-| 05 | Multi-Agent Ecosystems (I) | No project assigned | No project assigned. |
+| 05 | Multi-Agent Ecosystems (I) | Not started yet | Not started yet. |
 | 06 | Multi-Agent Ecosystems (II) | [AI-Powered LinkedIn Content Automation](https://github.com/VoxSecuritatis/VT-Applied-Agentic-AI/tree/main/Multi-Agent-Ecosystems-II) | Multi-agent content automation workflow using FastAPI, n8n, and specialized AI agents. |
 | 07 | Model Context & Tooling Protocol | Not started yet | Not started yet. |
 | 08 | AI Metrics, GTM & ROI | Not started yet | Not started yet. |
