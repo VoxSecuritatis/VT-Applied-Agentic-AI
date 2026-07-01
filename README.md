@@ -15,7 +15,7 @@ contains a standalone project with its own README, code, and documentation.
 | 01 | Python Refresher with AI | [Building a Python Adventure Game with GitHub Copilot](https://github.com/VoxSecuritatis/VT-01-Python-Refresher-with-AI-Project-2) | Text-based command-line adventure game using Python functions, conditionals, and loops, built with GitHub Copilot. |
 | 02 | Foundations of AI & Agentic AI | No project assigned | No project assigned. |
 | 03 | Generative AI Tech Stack and Prompt Engineering | No project assigned | No project assigned. |
-| 04 | LLM Internals & Planning Systems | [Document Intelligence RAG Assistant](https://github.com/VoxSecuritatis/VT-04-Document-Intelligence-RAG-Assistant) | Retrieval-Augmented Generation pipeline over PDFs using OpenAI embeddings and a local FAISS vector store. |
+| 04 | LLM Internals & Planning Systems | [Document Intelligence RAG Assistant](https://github.com/VoxSecuritatis/VT-04-Document-Intelligence-RAG-Assistant) | Retrieval-Augmented Generation (RAG) pipeline over PDFs using OpenAI embeddings and a local FAISS vector store. |
 | 05 | Multi-Agent Ecosystems (I) | [Agentic RAG Router-Retriever System](https://github.com/VoxSecuritatis/VT-05-Multi-Agent-Ecosystems-I) | Multi-agent Agentic RAG system with a hybrid Router Agent dispatching to PDF and Tavily web retrievers, fallback, and full observability tracing. |
 | 06 | Multi-Agent Ecosystems (II) | [AI-Powered LinkedIn Content Automation](https://github.com/VoxSecuritatis/VT-Applied-Agentic-AI/blob/main/Multi-Agent-Ecosystems-II/README.md) | Multi-agent content automation workflow using FastAPI, n8n, and specialized AI agents. |
 | 07 | Model Context & Tooling Protocol | Not started yet | Not started yet. |
